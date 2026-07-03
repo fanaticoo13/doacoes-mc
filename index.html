@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doações - Minecraft</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            color: #fff;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #ffd700;
+        }
+        .subtitle {
+            color: #aaa;
+            margin-bottom: 30px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #ddd;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 2px solid #333;
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: #ffd700;
+        }
+        .input-group input::placeholder {
+            color: #666;
+        }
+        .btn-doar {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #00b894, #00a86b);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-doar:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(0, 184, 148, 0.4);
+        }
+        .btn-doar:active {
+            transform: scale(0.98);
+        }
+        .info {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+            line-height: 1.8;
+        }
+        .info strong {
+            color: #ffd700;
+        }
+        .valor-badge {
+            display: inline-block;
+            background: rgba(255, 215, 0, 0.15);
+            border: 1px solid #ffd700;
+            border-radius: 20px;
+            padding: 4px 16px;
+            font-size: 14px;
+            color: #ffd700;
+            margin-bottom: 20px;
+        }
+        .erro {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #ff4444;
+            border-radius: 10px;
+            padding: 10px;
+            color: #ff4444;
+            margin-top: 15px;
+            display: none;
+        }
+        .erro.visible {
+            display: block;
+        }
+        .exemplo {
+            font-size: 13px;
+            color: #888;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🎮 Doação</h1>
+    <p class="subtitle">Servidor Minecraft</p>
+
+    <div class="valor-badge">💎 Valores: R$5 | R$10 | R$15 | R$25+</div>
+
+    <form id="formDoacao">
+        <div class="input-group">
+            <label for="nick">👤 Seu nick no Minecraft</label>
+            <input 
+                type="text" 
+                id="nick" 
+                placeholder="Digite seu nick (ex: Fanaticoo)" 
+                required
+                maxlength="16"
+            >
+            <p class="exemplo">Digite exatamente como aparece no jogo</p>
+        </div>
+
+        <div class="input-group">
+            <label for="valor">💵 Valor da doação</label>
+            <input 
+                type="number" 
+                id="valor" 
+                placeholder="Digite o valor (ex: 15)" 
+                required
+                min="1"
+                step="0.01"
+            >
+        </div>
+
+        <div id="erro" class="erro">⚠️ Preencha todos os campos corretamente.</div>
+
+        <button type="submit" class="btn-doar">💰 Doar com Pix</button>
+    </form>
+
+    <div class="info">
+        <strong>📌 Como funciona?</strong><br>
+        1. Preencha seu nick e valor<br>
+        2. Faça o Pix com o QR Code que vai aparecer<br>
+        3. Entre no servidor e veja sua recompensa!
+    </div>
+</div>
+
+<script>
+    // CONFIGURAÇÃO: URL da sua página de doação no LivePix
+    const LIVEPIX_URL = "https://livepix.gg/enghedu";
+
+    document.getElementById('formDoacao').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const nick = document.getElementById('nick').value.trim();
+        const valor = document.getElementById('valor').value.trim();
+        const erro = document.getElementById('erro');
+
+        // Validações
+        if (!nick || nick.length < 2) {
+            erro.textContent = '⚠️ Digite um nick válido (mínimo 2 caracteres).';
+            erro.classList.add('visible');
+            return;
+        }
+
+        if (!valor || parseFloat(valor) < 1) {
+            erro.textContent = '⚠️ Digite um valor válido (mínimo R$1,00).';
+            erro.classList.add('visible');
+            return;
+        }
+
+        erro.classList.remove('visible');
+
+        // --- PUXA O SISTEMA DE FORMA MAIS RÁPIDA ---
+        // Salva o nick no localStorage para recuperar depois
+        localStorage.setItem('nick_doacao', nick);
+        localStorage.setItem('valor_doacao', valor);
+
+        // Abre a página do LivePix em uma nova aba
+        window.open(LIVEPIX_URL, '_blank');
+
+        // Mensagem de confirmação
+        alert('✅ Doação iniciada!\n\n' +
+              '📌 Nick: ' + nick + '\n' +
+              '💰 Valor: R$ ' + valor + '\n\n' +
+              '🔹 Após confirmar o pagamento, entre no servidor!\n' +
+              '🔹 A recompensa será aplicada automaticamente.');
+    });
+</script>
+
+</body>
+</html>
